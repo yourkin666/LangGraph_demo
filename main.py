@@ -11,7 +11,7 @@ from src.sample.graph import builder
 from langchain_core.runnables.schema import StreamEvent
 from langgraph.prebuilt import create_react_agent
 from langchain_community.tools import TavilySearchResults
-from src.task_1.graph import manual_agent
+from src.easyTool.graph import manual_agent
 
 
 async def parse_stream_events(events: AsyncGenerator[StreamEvent, None]):

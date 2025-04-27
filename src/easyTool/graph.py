@@ -40,45 +40,21 @@ def get_person_info(name: str) -> list:
     """
     # Mock implementation using a list
     mock_data = [
-        {
-            "name": "John Smith",
-            "email": "john.smith@example.com",
-            "position": "Software Engineer",
-        },
-        {
-            "name": "Jane Doe",
-            "email": "jane.doe@example.com",
-            "position": "Data Scientist",
-        },
-        {
-            "name": "Alice Johnson",
-            "email": "alice.johnson@example.com",
-            "position": "Product Manager",
-        },
-        {
-            "name": "Bob Brown",
-            "email": "bob.brown@example.com",
-            "position": "UI Designer",
-        },
-        {
-            "name": "Sarah Johnson",
-            "email": "sarah.johnson@example.com",
-            "position": "Project Manager",
-        },
-        {
-            "name": "Michael Johnson",
-            "email": "michael.johnson@example.com",
-            "position": "CTO",
-        },
+        {"name": "John Smith", "email": "john.smith@example.com", "position": "Software Engineer"},
+        {"name": "Jane Doe", "email": "jane.doe@example.com", "position": "Data Scientist"},
+        {"name": "Alice Johnson", "email": "alice.johnson@example.com", "position": "Product Manager"},
+        {"name": "Bob Brown", "email": "bob.brown@example.com", "position": "UI Designer"},
+        {"name": "Sarah Johnson", "email": "sarah.johnson@example.com", "position": "Project Manager"},
+        {"name": "Michael Johnson", "email": "michael.johnson@example.com", "position": "CTO"},
         {"name": "John Doe", "email": "john.doe@example.com", "position": "Developer"},
     ]
 
+
     # Perform fuzzy search and collect all matches
-    name = name.lower()
     matches = []
 
     for person in mock_data:
-        if name in person["name"].lower():
+        if name.lower() in person["name"].lower():
             matches.append(person)
 
     # Return all matches
@@ -108,6 +84,7 @@ tools = [get_person_info, send_email]
 llm = ChatOpenAI(
     model="gpt-4o-2024-11-20",
     temperature=0,
+    api_key="xxx",
 )
 
 
@@ -129,14 +106,15 @@ manual_agent = (
             ]
         },
     )
-    .add_node(
-        "tools",
-        ToolNode(tools),
-    )
+    .add_node("tools", ToolNode(tools))
     .set_entry_point("chatbot")
     .add_conditional_edges("chatbot", tools_condition)
     .add_edge("tools", "chatbot")
 ).compile(checkpointer=MemorySaver())
+
+png = manual_agent.get_graph().draw_mermaid_png()
+with open("graph.png", "wb") as f:
+    f.write(png)
 
 react_agent = create_react_agent(
     model=llm,

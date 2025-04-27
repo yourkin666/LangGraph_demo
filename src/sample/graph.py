@@ -5,15 +5,13 @@ from langgraph.graph import StateGraph, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
 
 
-tools = [
-    TavilySearchResults(
-        max_results=5,
-        search_depth="advanced",
-        include_answer=False,
-        include_raw_content=False,
-        include_images=False,
-    )
-]
+tools = [TavilySearchResults(max_results=5, tavily_api_key="xxx")]
+
+llm = ChatOpenAI(
+    model="gpt-4o-2024-11-20",
+    temperature=0,
+    api_key="xxx",
+)
 
 
 builder = (
@@ -28,21 +26,19 @@ builder = (
                             MessagesPlaceholder(variable_name="messages"),
                         ]
                     )
-                    | ChatOpenAI(
-                        model="gpt-4o-2024-11-20",
-                        temperature=0,
-                    ).bind_tools(tools)
+                    | llm.bind_tools(tools)
                 ).invoke(state["messages"])
             ]
         },
     )
-    .add_node(
-        "tools",
-        ToolNode(tools),
-    )
+    .add_node("tools", ToolNode(tools))
     .set_entry_point("chatbot")
     .add_conditional_edges("chatbot", tools_condition)
     .add_edge("tools", "chatbot")
 )
 
 graph = builder.compile()
+
+png = graph.get_graph().draw_mermaid_png()
+with open("graph.png", "wb") as f:
+    f.write(png)

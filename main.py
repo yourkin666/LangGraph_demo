@@ -11,7 +11,9 @@ from src.sample.graph import builder
 from langchain_core.runnables.schema import StreamEvent
 from langgraph.prebuilt import create_react_agent
 from langchain_community.tools import TavilySearchResults
-from src.easyTool.graph import manual_agent
+
+from src.task1.graph import manual_agent
+from src.task2_debate.graph import debate_agent
 
 
 async def parse_stream_events(events: AsyncGenerator[StreamEvent, None]):
@@ -123,6 +125,7 @@ graph_map = {
         checkpointer=MemorySaver(),
     ),
     "Contact Assist": manual_agent,
+    "Judge Assistant": debate_agent,
 }
 
 
@@ -179,6 +182,16 @@ async def chat_profile():
                 cl.Starter(
                     label="send email for Jack(no person)",
                     message="Email Jack asking about the quote I sent yesterday. Thank him for choosing us.",
+                ),
+            ],
+        ),
+        cl.ChatProfile(
+            name="Judge Assistant",
+            markdown_description="一个辩论助手，帮助分析智能手机对青少年影响的正反方观点并给出总结。",
+            starters=[
+                cl.Starter(
+                    label="开始辩论",
+                    message="让我们开始讨论智能手机对青少年的影响。",
                 ),
             ],
         ),
